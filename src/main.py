@@ -1,4 +1,5 @@
 import os
+from email.mime.text import MIMEText
 
 import stripe
 from dotenv import load_dotenv
@@ -36,7 +37,6 @@ class PaymentProcessor:
 
         if "email" in customer_data["contact_info"]:
             # import smtplib
-            from email.mime.text import MIMEText
 
             msg = MIMEText("Thank you for your payment.")
             msg["Subject"] = "Payment Confirmation"
