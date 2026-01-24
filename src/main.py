@@ -1,5 +1,6 @@
 import os
 
+import stripe
 from dotenv import load_dotenv
 
 _ = load_dotenv()
@@ -19,9 +20,6 @@ class PaymentProcessor:
             print("Invalid payment data")
             return
 
-        import stripe
-        from stripe.error import StripeError
-
         stripe.api_key = os.getenv("STRIPE_API_KEY")
 
         try:
@@ -32,7 +30,7 @@ class PaymentProcessor:
                 description="Charge for " + customer_data["name"],
             )
             print("Payment successful")
-        except StripeError as e:
+        except stripe.StripeError as e:
             print("Payment failed:", e)
             return
 
