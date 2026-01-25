@@ -63,3 +63,14 @@ Cumplir con este principio permite:
 ✦ Facilitar el mantenimiento a largo plazo
 
 Se logra mediante **abstracción** (clases abstractas, interfaces) y **polimorfismo**, permitiendo que el código sea **extensible sin ser modificable**.
+
+### 3. L - Liskov Substitution Principle (Principio de Sustitución de Liskov)
+**Las subclases deben ser sustituibles por sus clases base**
+
+Cumplir con este principio garantiza **Coherencia, interoperabilidad y evita comportamientos inesperados.** 
+
+Para cumplirlo se debe:
+✦ Mantener firma de métodos: mismos parámetros y orden.
+✦ Mantener el tipo de retorno acordado.
+✦ Conservar las reglas de uso: precondiciones y postcondiciones.
+✦ Evitar agregar requisitos nuevos para invocar un método.
