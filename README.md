@@ -53,3 +53,13 @@ Cumplir con este principio permite:
 
 Al tener una sola responsabilidad se logra **alta cohesión** y **bajo acoplamiento**.
 
+### 2. O - Open-Closed Principle (Principio Abierto/Cerrado)
+**Las entidades de software deben estar abiertas para extensión, pero cerradas para modificación**
+
+Cumplir con este principio permite:
+✦ Agregar nuevas funcionalidades sin modificar código existente
+✦ Reducir el riesgo de introducir bugs en código que ya funciona
+✦ Mayor flexibilidad y extensibilidad del sistema
+✦ Facilitar el mantenimiento a largo plazo
+
+Se logra mediante **abstracción** (clases abstractas, interfaces) y **polimorfismo**, permitiendo que el código sea **extensible sin ser modificable**.
