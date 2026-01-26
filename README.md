@@ -74,3 +74,18 @@ Para cumplirlo se debe:
 ✦ Mantener el tipo de retorno acordado.
 ✦ Conservar las reglas de uso: precondiciones y postcondiciones.
 ✦ Evitar agregar requisitos nuevos para invocar un método.
+
+
+### 4. I - Interface Segregation Principle (Principio de Segregación de Interfaces)
+**Los clientes no deben verse obligados a depender de interfaces que no utilizan**
+
+Implementarlo significa:
+✦ Mejor cohesion y reducción del acoplamiento
+✦ Reutilizar componentes
+✦ Cambios en una interfaz no afectan a otras clases
+
+Se aplica cuando:
+- Las interfaces tienen múltiples métodos que no todas las clases necesitan
+- Los cambios en una interfaz fuerzan modificaciones en clases que no usan esa funcionalidad
+
+**Solución**: Dividir interfaces grandes en interfaces más pequeñas y específicas, permitiendo que cada cliente dependa solo de los métodos que realmente utiliza.
