@@ -89,3 +89,16 @@ Se aplica cuando:
 - Los cambios en una interfaz fuerzan modificaciones en clases que no usan esa funcionalidad
 
 **Solución**: Dividir interfaces grandes en interfaces más pequeñas y específicas, permitiendo que cada cliente dependa solo de los métodos que realmente utiliza.
+
+
+### 5. D - Dependency Inversion Principle (Principio de Inversión de Dependencias)
+**Los módulos de alto nivel no deben depender de los módulos de bajo nivel. Ambos deben depender de abstracciones**
+
+- **Módulos de alto nivel:** Contienen la lógica de negocio
+- **Módulos de bajo nivel:** Manejan detalles específicos
+
+Reglas clave:
+✦ Las abstracciones no deben depender de los detalles
+✦ Los detalles deben depender de las abstracciones
+✦ Usar interfaces o clases abstractas en lugar de clases concretas
+
