@@ -2,17 +2,16 @@ from src.payment_service.commons import (
     ContactInfo,
     CustomerData,
     PaymentData,
+    PaymentType,
 )
 from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.notifiers.notifier import NotifierProtocol
 from src.payment_service.notifiers.sms import PhoneNotifier
-from src.payment_service.processors.payment import PaymentProcessorProtocol
 from src.payment_service.validators.customer import CustomerValidator
 from src.payment_service.validators.payment import PaymentDataValidator
 
 from .loggers import TransactionLogger
 from .notifiers import EmailNotifier
-from .processors import LocalPaymentProcessor, StripePaymentProcessor
 from .service import PaymentService
 
 
@@ -54,151 +53,129 @@ def get_notifier_strategy(customer_data: CustomerData) -> NotifierProtocol:
     return get_default_notifier()
 
 
-# ===== STRATEGY: Selección de Procesador de Pagos =====
-def get_stripe_processor() -> StripePaymentProcessor:
-    """Retorna procesador de Stripe (para producción)."""
-    return StripePaymentProcessor()
+# ===== FACTORY METHOD PATTERN: Creación de Servicios =====
+def create_payment_service():
+    pass
 
 
-def get_local_processor() -> LocalPaymentProcessor:
-    """Retorna procesador local (para pruebas)."""
-    return LocalPaymentProcessor()
+# payment_data = PaymentData(amount=100, currency="MXN", source="tok_visa")
 
-
-def get_payment_processor_strategy(
-    payment_type: str, is_test_mode: bool = False
-) -> PaymentProcessorProtocol:
-    """
-    Strategy Pattern: Selecciona el procesador de pagos apropiado.
-
-    Args:
-        payment_type: Tipo de pago ("online", "local", "test")
-        is_test_mode: Si está en modo de prueba
-
-    Returns:
-        PaymentProcessorProtocol: Procesador seleccionado
-    """
-    if is_test_mode or payment_type == "local":
-        print("🔧 Using Local Payment Processor (Test Mode)")
-        return get_local_processor()
-
-    if payment_type == "online":
-        print("💳 Using Stripe Payment Processor (Production)")
-        return get_stripe_processor()
-
-    # Por defecto usa local para seguridad
-    print("⚠️ Unknown payment type, defaulting to Local Processor")
-    return get_local_processor()
+# service = PaymentService.create_with_payment_processor(
+#     payment_data=payment_data,
+#     notifier=LogOnlyNotifier(),
+#     customer_validator=CustomerValidator(),
+#     payment_validator=PaymentDataValidator(),
+#     logger=TransactionLogger(),
+# )
 
 
 if __name__ == "__main__":
-    # ===== CONFIGURACIÓN =====
-    customer_validator = CustomerValidator()
-    payment_data_validator = PaymentDataValidator()
-    logger = TransactionLogger()
+    print("\n" + "=" * 70)
+    print("STRATEGY PATTERN + FACTORY METHOD PATTERN")
+    print("=" * 70)
 
-    # ===== TEST 1: Cliente con EMAIL + Stripe =====
-    print("\n" + "=" * 60)
-    print("TEST 1: Cliente con Email + Stripe Processor")
-    print("=" * 60)
+    # ===== TEST 1: Pago ONLINE con MXN (Stripe) + Email =====
+    print("\n" + "=" * 70)
+    print("TEST 1: Pago ONLINE con MXN (Stripe) - Cliente con Email")
+    print("=" * 70)
 
     customer_with_email = CustomerData(
-        name="John Doe", contact_info=ContactInfo(email="john@example.com")
+        name="Alice Johnson", contact_info=ContactInfo(email="alice@example.com")
     )
 
-    payment_data = PaymentData(amount=5000, source="tok_visa")
+    payment_online_mxn = PaymentData(
+        amount=5000,  # $50.00 MXN
+        currency="MXN",
+        source="tok_visa",
+    )
 
-    # Strategy: Seleccionar procesador y notificador
-    processor = get_payment_processor_strategy("online", is_test_mode=False)
-    notifier = get_notifier_strategy(customer_with_email)
+    # STRATEGY: Selecciona notificador
+    notifier1 = get_notifier_strategy(customer_with_email)
 
-    service = PaymentService(
-        payment_processor=processor,
-        notifier=notifier,
-        logger=logger,
-        customer_validator=customer_validator,
-        payment_validator=payment_data_validator,
+    # FACTORY: Crea servicio con procesador apropiado
+    service1 = PaymentService.create_with_payment_processor(
+        payment_data=payment_online_mxn,
+        notifier=notifier1,
+        customer_validator=CustomerValidator(),
+        payment_validator=PaymentDataValidator(),
+        logger=TransactionLogger(),
     )
 
     try:
-        response = service.process_transaction(customer_with_email, payment_data)
+        response = service1.process_transaction(customer_with_email, payment_online_mxn)
         print(f"✅ Payment Status: {response.status}")
-        print(f"   Amount: ${response.amount / 100:.2f}")
+        print(f"   Amount: ${response.amount / 100:.2f} {payment_online_mxn.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
-    # ===== TEST 2: Cliente con TELÉFONO + Local Processor =====
-    print("\n" + "=" * 60)
-    print("TEST 2: Cliente con Teléfono + Local Processor")
-    print("=" * 60)
+    # ===== TEST 2: Pago ONLINE con USD (Local) + SMS =====
+    print("\n" + "=" * 70)
+    print("TEST 2: Pago ONLINE con USD (Local) - Cliente con Teléfono")
+    print("=" * 70)
 
     customer_with_phone = CustomerData(
-        name="Jane Smith", contact_info=ContactInfo(phone="1234567890")
+        name="Bob Smith", contact_info=ContactInfo(phone="1234567890")
     )
 
-    # Strategy: Cambiar a procesador local y notificador SMS
-    processor = get_payment_processor_strategy("local", is_test_mode=True)
-    notifier = get_notifier_strategy(customer_with_phone)
+    payment_online_usd = PaymentData(
+        amount=3000,  # $30.00 USD
+        currency="USD",
+        source="tok_mastercard",
+    )
 
-    service = PaymentService(
-        payment_processor=processor,
-        notifier=notifier,
-        logger=logger,
-        customer_validator=customer_validator,
-        payment_validator=payment_data_validator,
+    # STRATEGY: Selecciona SMS notifier
+    notifier2 = get_notifier_strategy(customer_with_phone)
+
+    # FACTORY: Crea servicio (usará LocalPaymentProcessor por USD)
+    service2 = PaymentService.create_with_payment_processor(
+        payment_data=payment_online_usd,
+        notifier=notifier2,
+        customer_validator=CustomerValidator(),
+        payment_validator=PaymentDataValidator(),
+        logger=TransactionLogger(),
     )
 
     try:
-        response = service.process_transaction(customer_with_phone, payment_data)
+        response = service2.process_transaction(customer_with_phone, payment_online_usd)
         print(f"✅ Payment Status: {response.status}")
-        print(f"   Amount: ${response.amount / 100:.2f}")
+        print(f"   Amount: ${response.amount / 100:.2f} {payment_online_usd.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
-    # ===== TEST 3: Cliente SIN CONTACTO =====
-    print("\n" + "=" * 60)
-    print("TEST 3: Cliente sin información de contacto")
-    print("=" * 60)
+    # ===== TEST 3: Pago OFFLINE + Sin Contacto =====
+    print("\n" + "=" * 70)
+    print("TEST 3: Pago OFFLINE - Cliente sin información de contacto")
+    print("=" * 70)
 
     customer_no_contact = CustomerData(
-        name="Anonymous User",
-        contact_info=ContactInfo(),  # Sin email ni teléfono
+        name="Charlie Anonymous", contact_info=ContactInfo()
     )
 
-    # Strategy: Usar notificador por defecto
-    processor = get_payment_processor_strategy("local", is_test_mode=True)
-    notifier = get_notifier_strategy(customer_no_contact)
+    payment_offline = PaymentData(
+        amount=10000,  # $100.00
+        currency="MXN",
+        source="OFFLINE",
+        type=PaymentType.OFFLINE,
+    )
 
-    service = PaymentService(
-        payment_processor=processor,
-        notifier=notifier,
-        logger=logger,
-        customer_validator=customer_validator,
-        payment_validator=payment_data_validator,
+    # STRATEGY: Selecciona LogOnlyNotifier
+    notifier3 = get_notifier_strategy(customer_no_contact)
+
+    # FACTORY: Crea servicio (usará OfflinePaymentProcessor)
+    service3 = PaymentService.create_with_payment_processor(
+        payment_data=payment_offline,
+        notifier=notifier3,
+        customer_validator=CustomerValidator(),
+        payment_validator=PaymentDataValidator(),
+        logger=TransactionLogger(),
     )
 
     try:
-        response = service.process_transaction(customer_no_contact, payment_data)
+        response = service3.process_transaction(customer_no_contact, payment_offline)
         print(f"✅ Payment Status: {response.status}")
-        print(f"   Amount: ${response.amount / 100:.2f}")
+        print(f"   Amount: ${response.amount / 100:.2f} {payment_offline.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
-    except Exception as e:
-        print(f"❌ Error: {e}")
-
-    # ===== TEST 4: Cambiar estrategia dinámicamente =====
-    print("\n" + "=" * 60)
-    print("TEST 4: Cambiar estrategia en tiempo de ejecución")
-    print("=" * 60)
-
-    # Cambiar el notificador dinámicamente
-    new_notifier = get_email_notifier()
-    service.set_notifier(new_notifier)
-    print("📧 Notifier changed to Email")
-
-    try:
-        response = service.process_transaction(customer_with_email, payment_data)
-        print(f"✅ Payment Status: {response.status}")
     except Exception as e:
         print(f"❌ Error: {e}")

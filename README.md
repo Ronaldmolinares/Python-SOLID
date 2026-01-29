@@ -127,4 +127,16 @@ Para implementarlo se definió una interfaz `NotifierProtocol` y varias implemen
 ✦ Crear un método selector que escoja la estrategia apropiada
 ✦ Permitir el cambio de estrategia en tiempo de ejecución
 
-2. **Factory Method**
+2. **Factory Pattern**
+El patrón Factory en Python se caracteriza por:
+
+1. Abstracción: Crea objetos sin especificar la clase exacta, utilizando interfaces o abstracciones.
+2. Encapsulamiento: Centraliza la lógica de creación de objetos, simplificando la instancia de clases.
+3. Flexibilidad: Permite añadir nuevos tipos de objetos sin modificar el código existente.
+
+**Cuándo aplicarlo:**
+- Cuando hay múltiples clases que comparten una interfaz.
+- Cuando la creación de objetos requiere lógica compleja.
+
+**Cómo aplicarlo:**
+- Crea una clase Factory con un método que instancie objetos basados en parámetros. Usa el Factory donde se requieran instancias, facilitando cambios futuros.
