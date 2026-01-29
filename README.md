@@ -102,3 +102,29 @@ Reglas clave:
 ✦ Los detalles deben depender de las abstracciones
 ✦ Usar interfaces o clases abstractas en lugar de clases concretas
 
+
+### Patrones de Diseño
+**Soluciones reutilizables para problemas comunes en el diseño de software**
+
+Hay tres categorías principales:
+1. **Patrones Creacionales:** Se centran en la creación de objetos.
+   - Ejemplos: Singleton, Factory Method, Abstract Factory, Builder, Prototype.
+
+2. **Patrones Estructurales:** Se ocupan de la composición de clases y objetos.
+   - Ejemplos: Adapter, Composite, Proxy, Flyweight, Facade, Bridge, Decorator.
+
+3. **Patrones de Comportamiento:** Se enfocan en mejorar la comunicación y asignación de responsabilidades entre objetos.
+   - Ejemplos: Observer, Strategy, Command, Chain of Responsibility, Mediator, State, Visitor, Template Method, Iterator, Memento.
+
+
+#### Patrones Usados:
+1. **Strategy**:
+Para implementarlo se definió una interfaz `NotifierProtocol` y varias implementaciones concretas (`EmailNotifier`, `SMSNotifier`, `LogOnlyNotifier`). La selección del notificador se realiza en tiempo de ejecución según la información de contacto del cliente.
+
+**Para usar el patrón Strategy se debe:**
+✦ Definir una interfaz común (Protocol) que todas las estrategias implementen
+✦ Crear implementaciones concretas de cada estrategia
+✦ Crear un método selector que escoja la estrategia apropiada
+✦ Permitir el cambio de estrategia en tiempo de ejecución
+
+2. **Factory Method**

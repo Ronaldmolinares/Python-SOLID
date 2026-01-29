@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from stripe import StripeError
 
 from src.payment_service.commons import CustomerData, PaymentData, PaymentResponse
+from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.processors import (
     PaymentProcessorProtocol,
     RecurringPaymentProtocol,
@@ -25,12 +26,22 @@ class PaymentService:
     recurring_processor: RecurringPaymentProtocol | None = None
     refund_processor: RefundPaymentProtocol | None = None
 
+    def set_notifier(self, notifier: NotifierProtocol) -> None:
+        print("Changing notifier")
+        """Establece el sistema de notificaciones"""
+        self.notifier = notifier
+
     def process_transaction(
         self, customer_data: CustomerData, payment_data: PaymentData
     ) -> PaymentResponse:
         """Procesa un pago único"""
+
+        require_contact = not isinstance(self.notifier, LogOnlyNotifier)
+
         try:
-            self.customer_validator.validate_data(customer_data)
+            self.customer_validator.validate_data(
+                customer_data, require_contact=require_contact
+            )
             self.payment_validator.validate(payment_data)
         except ValueError as e:
             raise e
