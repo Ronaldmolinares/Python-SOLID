@@ -16,10 +16,12 @@ from src.payment_service.validators.payment import PaymentDataValidator
 
 from .loggers import TransactionLogger
 from .notifiers import NotifierProtocol
+from .service_protocol import PaymentServiceProtocol
 
 
 @dataclass
-class PaymentService:
+# paso 2, implementar la clase concreta del servicio de pagos
+class PaymentService(PaymentServiceProtocol):
     payment_processor: PaymentProcessorProtocol
     notifier: NotifierProtocol
     customer_validator: CustomerValidator

@@ -127,12 +127,12 @@ Para implementarlo se definió una interfaz `NotifierProtocol` y varias implemen
 ✦ Crear un método selector que escoja la estrategia apropiada
 ✦ Permitir el cambio de estrategia en tiempo de ejecución
 
-2. **Factory Pattern**
+2. **Factory**
 El patrón Factory en Python se caracteriza por:
 
-1. Abstracción: Crea objetos sin especificar la clase exacta, utilizando interfaces o abstracciones.
-2. Encapsulamiento: Centraliza la lógica de creación de objetos, simplificando la instancia de clases.
-3. Flexibilidad: Permite añadir nuevos tipos de objetos sin modificar el código existente.
+    1. Abstracción: Crea objetos sin especificar la clase exacta, utilizando interfaces o abstracciones.
+    2. Encapsulamiento: Centraliza la lógica de creación de objetos, simplificando la instancia de clases.
+    3. Flexibilidad: Permite añadir nuevos tipos de objetos sin modificar el código existente.
 
 **Cuándo aplicarlo:**
 - Cuando hay múltiples clases que comparten una interfaz.
@@ -140,3 +140,13 @@ El patrón Factory en Python se caracteriza por:
 
 **Cómo aplicarlo:**
 - Crea una clase Factory con un método que instancie objetos basados en parámetros. Usa el Factory donde se requieran instancias, facilitando cambios futuros.
+
+3. **Decorator**
+El patrón Decorator permite añadir funcionalidades a objetos de manera dinámica sin alterar su estructura original. En Python, esto se logra mediante la composición de objetos y el uso de clases que envuelven a otras.
+
+**Como aplicarlo:**
+✦ Define una interfaz/clase abstracta que describa el comportamiento del objeto.
+✦ Implementa clases concretas que representen el objeto base.
+✦ Crea clases decoradoras que también implementen la interfaz 
+✦ Implementa decoradores concretos que extiendan la clase decoradora
+✦ Envuelve objetos con decoradores para añadir funcionalidades dinámicamente

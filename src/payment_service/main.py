@@ -11,6 +11,7 @@ from src.payment_service.validators.customer import CustomerValidator
 from src.payment_service.validators.payment import PaymentDataValidator
 
 from .loggers import TransactionLogger
+from .logging_service import PaymentServiceLogging
 from .notifiers import EmailNotifier
 from .service import PaymentService
 
@@ -68,6 +69,7 @@ def create_payment_service():
 #     logger=TransactionLogger(),
 # )
 
+# logging_service = PaymentServiceLogging(wrapped_service=service)
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
@@ -101,8 +103,12 @@ if __name__ == "__main__":
         logger=TransactionLogger(),
     )
 
+    decorator_service = PaymentServiceLogging(wrapped_service=service1)
+
     try:
-        response = service1.process_transaction(customer_with_email, payment_online_mxn)
+        response = decorator_service.process_transaction(
+            customer_with_email, payment_online_mxn
+        )
         print(f"✅ Payment Status: {response.status}")
         print(f"   Amount: ${response.amount / 100:.2f} {payment_online_mxn.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
@@ -137,7 +143,10 @@ if __name__ == "__main__":
     )
 
     try:
-        response = service2.process_transaction(customer_with_phone, payment_online_usd)
+        decorator_service = PaymentServiceLogging(wrapped_service=service2)
+        response = decorator_service.process_transaction(
+            customer_with_phone, payment_online_usd
+        )
         print(f"✅ Payment Status: {response.status}")
         print(f"   Amount: ${response.amount / 100:.2f} {payment_online_usd.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
