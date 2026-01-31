@@ -1,184 +1,172 @@
-from src.payment_service.commons import (
-    ContactInfo,
-    CustomerData,
-    PaymentData,
-    PaymentType,
-)
-from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
-from src.payment_service.notifiers.notifier import NotifierProtocol
-from src.payment_service.notifiers.sms import PhoneNotifier
-from src.payment_service.validators.customer import CustomerValidator
-from src.payment_service.validators.payment import PaymentDataValidator
-
-from .loggers import TransactionLogger
-from .logging_service import PaymentServiceLogging
-from .notifiers import EmailNotifier
-from .service import PaymentService
-
-
-# ===== STRATEGY: Selección de Notificador =====
-def get_email_notifier() -> EmailNotifier:
-    """Retorna notificador por email."""
-    return EmailNotifier()
-
-
-def get_sms_notifier() -> PhoneNotifier:
-    """Retorna notificador por SMS."""
-    return PhoneNotifier(sms_gateway="SMS Gateway")
-
-
-def get_default_notifier() -> NotifierProtocol:
-    """Retorna notificador por defecto (cuando no hay email ni teléfono)."""
-    print("⚠️ Warning: No contact info, using default notifier (log only)")
-    return LogOnlyNotifier()
-
-
-def get_notifier_strategy(customer_data: CustomerData) -> NotifierProtocol:
-    """
-    Strategy Pattern: Selecciona el notificador apropiado según los datos del cliente.
-
-    Prioridad:
-    1. SMS si tiene teléfono
-    2. Email si tiene email
-    3. Notificador por defecto si no tiene nada
-    """
-    if customer_data.contact_info.phone:
-        print("📱 Using SMS Notifier")
-        return get_sms_notifier()
-
-    if customer_data.contact_info.email:
-        print("📧 Using Email Notifier")
-        return get_email_notifier()
-
-    print("📝 Using Default Notifier")
-    return get_default_notifier()
-
-
-# ===== FACTORY METHOD PATTERN: Creación de Servicios =====
-def create_payment_service():
-    pass
-
-
-# payment_data = PaymentData(amount=100, currency="MXN", source="tok_visa")
-
-# service = PaymentService.create_with_payment_processor(
-#     payment_data=payment_data,
-#     notifier=LogOnlyNotifier(),
-#     customer_validator=CustomerValidator(),
-#     payment_validator=PaymentDataValidator(),
-#     logger=TransactionLogger(),
+# from src.payment_service.commons import (
+#     CustomerData,
+#     customer,
 # )
+# from src.payment_service.commons.payment_data import PaymentData
+# from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
+# from src.payment_service.notifiers.notifier import NotifierProtocol
+# from src.payment_service.notifiers.sms import PhoneNotifier
 
-# logging_service = PaymentServiceLogging(wrapped_service=service)
+# from .builder import PaymentServiceBuilder
+# from .notifiers import EmailNotifier
+
+
+# # ===== STRATEGY: Selección de Notificador =====
+# def get_email_notifier() -> EmailNotifier:
+#     """Retorna notificador por email."""
+#     return EmailNotifier()
+
+
+# def get_sms_notifier() -> PhoneNotifier:
+#     """Retorna notificador por SMS."""
+#     return PhoneNotifier(sms_gateway="SMS Gateway")
+
+
+# def get_default_notifier() -> NotifierProtocol:
+#     """Retorna notificador por defecto (cuando no hay email ni teléfono)."""
+#     print("⚠️ Warning: No contact info, using default notifier (log only)")
+#     return LogOnlyNotifier()
+
+
+# def get_notifier_strategy(customer_data: CustomerData) -> NotifierProtocol:
+#     """
+#     Strategy Pattern: Selecciona el notificador apropiado según los datos del cliente.
+
+#     Prioridad:
+#     1. SMS si tiene teléfono
+#     2. Email si tiene email
+#     3. Notificador por defecto si no tiene nada
+#     """
+#     if customer_data.contact_info.phone:
+#         print("📱 Using SMS Notifier")
+#         return get_sms_notifier()
+
+#     if customer_data.contact_info.email:
+#         print("📧 Using Email Notifier")
+#         return get_email_notifier()
+
+#     print("📝 Using Default Notifier")
+#     return get_default_notifier()
+
+
+# if __name__ == "__main__":
+#     customer_data = CustomerData(
+#         name="Manuela Torres",
+#         contact_info=customer.ContactInfo(email="manuela.torres@yahoo.com"),
+#     )
+#     payment_data = PaymentData(amount=120, source="tok_mastercard")
+#     builder = PaymentServiceBuilder()
+
+#     service = (
+#         builder.set_logger()
+#         .set_payment_validator()
+#         .set_customer_validator()
+#         .set_payment_processor(payment_data)
+#         .set_notifier(customer_data)
+#         .build()
+#     )
+from src.payment_service.commons import CustomerData
+from src.payment_service.commons.contact import ContactInfo
+from src.payment_service.commons.payment_data import PaymentData, PaymentType
+
+from .builder import PaymentServiceBuilder
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
-    print("STRATEGY PATTERN + FACTORY METHOD PATTERN")
+    print("BUILDER PATTERN + STRATEGY PATTERN + FACTORY METHOD")
     print("=" * 70)
 
-    # ===== TEST 1: Pago ONLINE con MXN (Stripe) + Email =====
-    print("\n" + "=" * 70)
-    print("TEST 1: Pago ONLINE con MXN (Stripe) - Cliente con Email")
-    print("=" * 70)
+    # ===== TEST 1: Cliente con Email =====
+    print("\n--- TEST 1: Cliente con Email ---")
 
-    customer_with_email = CustomerData(
-        name="Alice Johnson", contact_info=ContactInfo(email="alice@example.com")
+    customer_data = CustomerData(
+        name="Manuela Torres",
+        contact_info=ContactInfo(email="manuela.torres@yahoo.com"),
     )
 
-    payment_online_mxn = PaymentData(
-        amount=5000,  # $50.00 MXN
+    payment_data = PaymentData(
+        amount=12000,  # $120.00
+        source="tok_mastercard",
         currency="MXN",
-        source="tok_visa",
+        type=PaymentType.ONLINE,
     )
 
-    # STRATEGY: Selecciona notificador
-    notifier1 = get_notifier_strategy(customer_with_email)
-
-    # FACTORY: Crea servicio con procesador apropiado
-    service1 = PaymentService.create_with_payment_processor(
-        payment_data=payment_online_mxn,
-        notifier=notifier1,
-        customer_validator=CustomerValidator(),
-        payment_validator=PaymentDataValidator(),
-        logger=TransactionLogger(),
+    # ✅ CORRECTO: Pasa customer_data directamente
+    # El builder aplicará el Strategy Pattern internamente
+    service = (
+        PaymentServiceBuilder()
+        .set_payment_processor(payment_data)
+        .set_notifier(customer_data)  # ✅ Pasa CustomerData, no NotifierProtocol
+        .set_recurring_processor()
+        .set_refund_processor()
+        .set_logger()
+        .set_customer_validator()
+        .set_payment_validator()
+        .build()
     )
-
-    decorator_service = PaymentServiceLogging(wrapped_service=service1)
 
     try:
-        response = decorator_service.process_transaction(
-            customer_with_email, payment_online_mxn
-        )
+        response = service.process_transaction(customer_data, payment_data)
         print(f"✅ Payment Status: {response.status}")
-        print(f"   Amount: ${response.amount / 100:.2f} {payment_online_mxn.currency}")
+        print(f"   Amount: ${response.amount / 100:.2f} {payment_data.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
-    # ===== TEST 2: Pago ONLINE con USD (Local) + SMS =====
-    print("\n" + "=" * 70)
-    print("TEST 2: Pago ONLINE con USD (Local) - Cliente con Teléfono")
-    print("=" * 70)
+    # ===== TEST 2: Cliente con Teléfono =====
+    print("\n--- TEST 2: Cliente con Teléfono ---")
 
     customer_with_phone = CustomerData(
-        name="Bob Smith", contact_info=ContactInfo(phone="1234567890")
+        name="Carlos Mendez",
+        contact_info=ContactInfo(phone="5551234567"),
     )
 
-    payment_online_usd = PaymentData(
-        amount=3000,  # $30.00 USD
-        currency="USD",
-        source="tok_mastercard",
+    payment_data_usd = PaymentData(
+        amount=5000, source="tok_visa", currency="USD", type=PaymentType.ONLINE
     )
 
-    # STRATEGY: Selecciona SMS notifier
-    notifier2 = get_notifier_strategy(customer_with_phone)
-
-    # FACTORY: Crea servicio (usará LocalPaymentProcessor por USD)
-    service2 = PaymentService.create_with_payment_processor(
-        payment_data=payment_online_usd,
-        notifier=notifier2,
-        customer_validator=CustomerValidator(),
-        payment_validator=PaymentDataValidator(),
-        logger=TransactionLogger(),
+    service2 = (
+        PaymentServiceBuilder()
+        .set_payment_processor(payment_data_usd)
+        .set_notifier(customer_with_phone)  # ✅ Strategy seleccionará SMS
+        .set_recurring_processor()
+        .set_refund_processor()
+        .set_logger()
+        .set_customer_validator()
+        .set_payment_validator()
+        .build()
     )
 
     try:
-        decorator_service = PaymentServiceLogging(wrapped_service=service2)
-        response = decorator_service.process_transaction(
-            customer_with_phone, payment_online_usd
-        )
+        response = service2.process_transaction(customer_with_phone, payment_data_usd)
         print(f"✅ Payment Status: {response.status}")
-        print(f"   Amount: ${response.amount / 100:.2f} {payment_online_usd.currency}")
+        print(f"   Amount: ${response.amount / 100:.2f} {payment_data_usd.currency}")
         print(f"   Transaction ID: {response.transaction_id}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
-    # ===== TEST 3: Pago OFFLINE + Sin Contacto =====
-    print("\n" + "=" * 70)
-    print("TEST 3: Pago OFFLINE - Cliente sin información de contacto")
-    print("=" * 70)
+    # ===== TEST 3: Cliente sin Contacto =====
+    print("\n--- TEST 3: Cliente sin Contacto ---")
 
     customer_no_contact = CustomerData(
-        name="Charlie Anonymous", contact_info=ContactInfo()
+        name="Usuario Anónimo",
+        contact_info=ContactInfo(),  # Sin email ni teléfono
     )
 
     payment_offline = PaymentData(
-        amount=10000,  # $100.00
-        currency="MXN",
-        source="OFFLINE",
-        type=PaymentType.OFFLINE,
+        amount=8000, source="", currency="MXN", type=PaymentType.OFFLINE
     )
 
-    # STRATEGY: Selecciona LogOnlyNotifier
-    notifier3 = get_notifier_strategy(customer_no_contact)
-
-    # FACTORY: Crea servicio (usará OfflinePaymentProcessor)
-    service3 = PaymentService.create_with_payment_processor(
-        payment_data=payment_offline,
-        notifier=notifier3,
-        customer_validator=CustomerValidator(),
-        payment_validator=PaymentDataValidator(),
-        logger=TransactionLogger(),
+    service3 = (
+        PaymentServiceBuilder()
+        .set_payment_processor(payment_offline)
+        .set_notifier(customer_no_contact)  # ✅ Strategy seleccionará LogOnlyNotifier
+        .set_recurring_processor()
+        .set_refund_processor()
+        .set_logger()
+        .set_customer_validator()
+        .set_payment_validator()
+        .build()
     )
 
     try:
@@ -188,3 +176,7 @@ if __name__ == "__main__":
         print(f"   Transaction ID: {response.transaction_id}")
     except Exception as e:
         print(f"❌ Error: {e}")
+
+    print("\n" + "=" * 70)
+    print("PRUEBAS COMPLETADAS")
+    print("=" * 70)

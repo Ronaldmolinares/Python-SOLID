@@ -118,7 +118,7 @@ Hay tres categorías principales:
 
 
 #### Patrones Usados:
-1. **Strategy**:
+1. **Strategy (behavioral)**:
 Para implementarlo se definió una interfaz `NotifierProtocol` y varias implementaciones concretas (`EmailNotifier`, `SMSNotifier`, `LogOnlyNotifier`). La selección del notificador se realiza en tiempo de ejecución según la información de contacto del cliente.
 
 **Para usar el patrón Strategy se debe:**
@@ -127,7 +127,7 @@ Para implementarlo se definió una interfaz `NotifierProtocol` y varias implemen
 ✦ Crear un método selector que escoja la estrategia apropiada
 ✦ Permitir el cambio de estrategia en tiempo de ejecución
 
-2. **Factory**
+2. **Factory (creational)**
 El patrón Factory en Python se caracteriza por:
 
     1. Abstracción: Crea objetos sin especificar la clase exacta, utilizando interfaces o abstracciones.
@@ -141,7 +141,7 @@ El patrón Factory en Python se caracteriza por:
 **Cómo aplicarlo:**
 - Crea una clase Factory con un método que instancie objetos basados en parámetros. Usa el Factory donde se requieran instancias, facilitando cambios futuros.
 
-3. **Decorator**
+3. **Decorator (structural)**
 El patrón Decorator permite añadir funcionalidades a objetos de manera dinámica sin alterar su estructura original. En Python, esto se logra mediante la composición de objetos y el uso de clases que envuelven a otras.
 
 **Como aplicarlo:**
@@ -150,3 +150,12 @@ El patrón Decorator permite añadir funcionalidades a objetos de manera dinámi
 ✦ Crea clases decoradoras que también implementen la interfaz 
 ✦ Implementa decoradores concretos que extiendan la clase decoradora
 ✦ Envuelve objetos con decoradores para añadir funcionalidades dinámicamente
+
+4. **Builder (creational)**
+El patrón Builder se utiliza para construir objetos complejos paso a paso. Separa la construcción de un objeto de su representación, permitiendo crear diferentes representaciones del mismo proceso de construcción.
+
+**Cómo aplicarlo:**
+✦ Separar la construcción a una clase Builder.
+✦ Crear metodos especificos en el Builder para configurar cada parte del objeto.
+✦ Implementar un método `build()` que devuelva el objeto final.
+
