@@ -9,7 +9,11 @@ class NotifierProtocol(Protocol):
 
     This protocol defines the interface for notifiers. Implementations
     should provide a method `send_confirmation` that sends a confirmation
-    to the customer.
+    to the customer and `send_failure_notification` for failed transactions.
     """
 
     def send_confirmation(self, customer_data: CustomerData): ...
+
+    def send_failure_notification(
+        self, customer_data: CustomerData, error_message: str
+    ): ...

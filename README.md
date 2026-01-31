@@ -159,3 +159,11 @@ El patrón Builder se utiliza para construir objetos complejos paso a paso. Sepa
 ✦ Crear metodos especificos en el Builder para configurar cada parte del objeto.
 ✦ Implementar un método `build()` que devuelva el objeto final.
 
+
+5. **Observer (behavioral)**
+El patrón Observer define una dependencia uno a muchos entre objetos, de manera que cuando un objeto cambia su estado, todos sus dependientes son notificados y actualizados automáticamente.
+
+**Cómo aplicarlo:**
+✦ Definir una interfaz de Listener con un método de Notificación.
+✦ Crear una clase Manager que gestione los listeners (suscripción, desuscripción, notificación).
+✦ Agregar el Manager como atributo de la clase de alto nivel

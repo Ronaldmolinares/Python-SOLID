@@ -100,6 +100,7 @@ if __name__ == "__main__":
         .set_recurring_processor()
         .set_refund_processor()
         .set_logger()
+        .set_listener()
         .set_customer_validator()
         .set_payment_validator()
         .build()
@@ -132,6 +133,7 @@ if __name__ == "__main__":
         .set_recurring_processor()
         .set_refund_processor()
         .set_logger()
+        .set_listener()
         .set_customer_validator()
         .set_payment_validator()
         .build()
@@ -160,10 +162,11 @@ if __name__ == "__main__":
     service3 = (
         PaymentServiceBuilder()
         .set_payment_processor(payment_offline)
-        .set_notifier(customer_no_contact)  # ✅ Strategy seleccionará LogOnlyNotifier
+        .set_notifier(customer_no_contact)
         .set_recurring_processor()
         .set_refund_processor()
         .set_logger()
+        .set_listener()
         .set_customer_validator()
         .set_payment_validator()
         .build()

@@ -2,6 +2,8 @@ from typing import Self
 
 from src.payment_service.commons import CustomerData, PaymentData
 from src.payment_service.factory import PaymentProcessorFactory
+from src.payment_service.listeners.accountability_listener import AccountabilityListener
+from src.payment_service.listeners.manager import ListenerManager
 from src.payment_service.notifiers import EmailNotifier, PhoneNotifier
 from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.processors import PaymentProcessorProtocol
@@ -19,6 +21,7 @@ class PaymentServiceBuilder:
     customer_validator: CustomerValidator | None = None
     payment_validator: PaymentDataValidator | None = None
     logger: TransactionLogger | None = None
+    listener: ListenerManager | None = None
     recurring_processor: PaymentProcessorProtocol | None = None
     refund_processor: PaymentProcessorProtocol | None = None
 
@@ -91,12 +94,21 @@ class PaymentServiceBuilder:
 
         return self
 
+    def set_listener(self):
+        """Configura el listener manager con sus suscriptores."""
+        listener = ListenerManager()
+        accountability_listener = AccountabilityListener()
+        listener.suscribe(accountability_listener)
+        self.listener = listener
+        return self
+
     def build(self):
         if not all(
             [
                 self.payment_processor,
                 self.notifier,
                 self.logger,
+                self.listener,
                 self.customer_validator,
                 self.payment_validator,
             ]
@@ -107,6 +119,7 @@ class PaymentServiceBuilder:
                     ("payment_processor", self.payment_processor),
                     ("notifier", self.notifier),
                     ("logger", self.logger),
+                    ("listener", self.listener),
                     ("customer_validator", self.customer_validator),
                     ("payment_validator", self.payment_validator),
                 ]
@@ -118,6 +131,7 @@ class PaymentServiceBuilder:
             payment_processor=self.payment_processor,
             notifier=self.notifier,
             logger=self.logger,
+            listener=self.listener,
             customer_validator=self.customer_validator,
             payment_validator=self.payment_validator,
             recurring_processor=self.recurring_processor,

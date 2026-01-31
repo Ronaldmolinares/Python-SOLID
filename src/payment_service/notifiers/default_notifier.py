@@ -13,3 +13,11 @@ class LogOnlyNotifier(NotifierProtocol):
         """Registra la confirmación en logs solamente."""
         print(f"📝 [LOG] Payment confirmation for {customer_data.name}")
         print("📝 [LOG] No contact info available, notification logged only")
+
+    def send_failure_notification(
+        self, customer_data: CustomerData, error_message: str
+    ) -> None:
+        """Registra pago fallido en logs"""
+        print(f"📝 [LOG] ❌ Payment failure for {customer_data.name}")
+        print(f"📝 [LOG] Error: {error_message}")
+        print("📝 [LOG] No contact info available, notification logged only")

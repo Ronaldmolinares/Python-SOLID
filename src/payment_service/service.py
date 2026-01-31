@@ -5,6 +5,7 @@ from stripe import StripeError
 
 from src.payment_service.commons import CustomerData, PaymentData, PaymentResponse
 from src.payment_service.factory import PaymentProcessorFactory
+from src.payment_service.listeners.manager import ListenerManager
 from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.processors import (
     PaymentProcessorProtocol,
@@ -27,6 +28,7 @@ class PaymentService(PaymentServiceProtocol):
     customer_validator: CustomerValidator
     payment_validator: PaymentDataValidator
     logger: TransactionLogger
+    listener: ListenerManager
     recurring_processor: RecurringPaymentProtocol | None = None
     refund_processor: RefundPaymentProtocol | None = None
 
@@ -63,7 +65,22 @@ class PaymentService(PaymentServiceProtocol):
             payment_response = self.payment_processor.process_transaction(
                 customer_data, payment_data
             )
-            self.notifier.send_confirmation(customer_data)
+            self.listener.notify(
+                f"Pago exitoso: {payment_response}\n{payment_response.transaction_id}"
+            )
+            if payment_response.status == "succeeded":
+                self.notifier.send_confirmation(customer_data)
+            else:
+                # Notificar internamente (listeners)
+                self.listener.notify(
+                    f"Error en el pago - Motivo: {payment_response.message}"
+                )
+
+                # Notificar al CLIENTE del fallo
+                self.notifier.send_failure_notification(
+                    customer_data, str(payment_response.message)
+                )
+
             self.logger.log(customer_data, payment_data, payment_response)
             return payment_response
 

@@ -26,7 +26,7 @@ class LocalPaymentProcessor(
         print(f"Processing local payment for {customer_data.name}")
 
         return PaymentResponse(
-            status="success",
+            status="succeeded",
             amount=payment_data.amount,
             transaction_id=f"LOCAL-{uuid.uuid4().hex[:12].upper()}",
             message="Local payment processed successfully",

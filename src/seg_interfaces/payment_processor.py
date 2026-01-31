@@ -178,7 +178,7 @@ class OfflinePaymentProcessor(PaymentProcessorProtocol):
     ) -> PaymentResponse:
         print("Processing offline payment for", customer_data.name)
         return PaymentResponse(
-            status="success",
+            status="succeeded",
             amount=payment_data.amount,
             transaction_id=str(uuid.uuid4()),
             message="Offline payment success",

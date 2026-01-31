@@ -3,6 +3,7 @@ from typing import Protocol
 from src.payment_service.commons.customer import CustomerData
 from src.payment_service.commons.payment_data import PaymentData
 from src.payment_service.commons.payment_response import PaymentResponse
+from src.payment_service.listeners.manager import ListenerManager
 from src.payment_service.loggers.transaction_logger import TransactionLogger
 from src.payment_service.notifiers.notifier import NotifierProtocol
 from src.payment_service.processors.payment import PaymentProcessorProtocol
@@ -19,6 +20,7 @@ class PaymentServiceProtocol(Protocol):
     customer_validator: CustomerValidator
     payment_validator: PaymentDataValidator
     logger: TransactionLogger
+    listener: ListenerManager
     recurring_processor: RecurringPaymentProtocol | None = None
     refund_processor: RefundPaymentProtocol | None = None
 
