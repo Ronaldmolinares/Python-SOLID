@@ -7,8 +7,11 @@ from src.payment_service.listeners.manager import ListenerManager
 from src.payment_service.notifiers import EmailNotifier, PhoneNotifier
 from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.processors import PaymentProcessorProtocol
-from src.payment_service.validators.customer import CustomerValidator
-from src.payment_service.validators.payment import PaymentDataValidator
+from src.payment_service.validators import (
+    ChainHandler,
+    CustomerHandler,
+    PaymentHandler,
+)
 
 from .loggers import TransactionLogger
 from .notifiers import NotifierProtocol
@@ -18,8 +21,7 @@ from .service import PaymentService
 class PaymentServiceBuilder:
     payment_processor: PaymentProcessorProtocol | None = None
     notifier: NotifierProtocol | None = None
-    customer_validator: CustomerValidator | None = None
-    payment_validator: PaymentDataValidator | None = None
+    validator: ChainHandler | None = None
     logger: TransactionLogger | None = None
     listener: ListenerManager | None = None
     recurring_processor: PaymentProcessorProtocol | None = None
@@ -29,19 +31,25 @@ class PaymentServiceBuilder:
         self.logger = TransactionLogger()
         return self
 
-    def set_payment_validator(self) -> Self:
-        self.payment_validator = PaymentDataValidator()
-        return self
-
-    def set_customer_validator(self) -> Self:
-        self.customer_validator = CustomerValidator()
-        return self
-
     def set_payment_processor(self, payment_data: PaymentData) -> Self:
-        """Crea el procesador de pagos principal."""
+        """Factory Method: Crea el procesador de pagos apropiado."""
         self.payment_processor = PaymentProcessorFactory.create_payment_processor(
             payment_data
         )
+        return self
+
+    def set_payment_validator(self) -> Self:
+        self.validator = PaymentHandler()
+        return self
+
+    def set_chain_of_validations(self) -> Self:
+        customer_handler = CustomerHandler()
+        payment_handler = PaymentHandler()
+
+        # Encadenar: Customer -> Payment
+        customer_handler.set_next(payment_handler)
+
+        self.validator = customer_handler
         return self
 
     def set_notifier(self, customer_data: CustomerData) -> Self:
@@ -109,8 +117,7 @@ class PaymentServiceBuilder:
                 self.notifier,
                 self.logger,
                 self.listener,
-                self.customer_validator,
-                self.payment_validator,
+                self.validator,
             ]
         ):
             missing = [
@@ -120,8 +127,7 @@ class PaymentServiceBuilder:
                     ("notifier", self.notifier),
                     ("logger", self.logger),
                     ("listener", self.listener),
-                    ("customer_validator", self.customer_validator),
-                    ("payment_validator", self.payment_validator),
+                    ("validator", self.validator),
                 ]
                 if value is None
             ]
@@ -132,8 +138,7 @@ class PaymentServiceBuilder:
             notifier=self.notifier,
             logger=self.logger,
             listener=self.listener,
-            customer_validator=self.customer_validator,
-            payment_validator=self.payment_validator,
+            validator=self.validator,
             recurring_processor=self.recurring_processor,
             refund_processor=self.refund_processor,
         )

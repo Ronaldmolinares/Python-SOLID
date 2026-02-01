@@ -3,17 +3,20 @@ from typing import Self
 
 from stripe import StripeError
 
-from src.payment_service.commons import CustomerData, PaymentData, PaymentResponse
+from src.payment_service.commons import (
+    CustomerData,
+    PaymentData,
+    PaymentResponse,
+    Request,
+)
 from src.payment_service.factory import PaymentProcessorFactory
 from src.payment_service.listeners.manager import ListenerManager
-from src.payment_service.notifiers.default_notifier import LogOnlyNotifier
 from src.payment_service.processors import (
     PaymentProcessorProtocol,
     RecurringPaymentProtocol,
     RefundPaymentProtocol,
 )
-from src.payment_service.validators.customer import CustomerValidator
-from src.payment_service.validators.payment import PaymentDataValidator
+from src.payment_service.validators import ChainHandler
 
 from .loggers import TransactionLogger
 from .notifiers import NotifierProtocol
@@ -25,8 +28,7 @@ from .service_protocol import PaymentServiceProtocol
 class PaymentService(PaymentServiceProtocol):
     payment_processor: PaymentProcessorProtocol
     notifier: NotifierProtocol
-    customer_validator: CustomerValidator
-    payment_validator: PaymentDataValidator
+    validator: ChainHandler
     logger: TransactionLogger
     listener: ListenerManager
     recurring_processor: RecurringPaymentProtocol | None = None
@@ -51,14 +53,13 @@ class PaymentService(PaymentServiceProtocol):
     ) -> PaymentResponse:
         """Procesa un pago único"""
 
-        require_contact = not isinstance(self.notifier, LogOnlyNotifier)
+        # require_contact = not isinstance(self.notifier, LogOnlyNotifier)
 
         try:
-            self.customer_validator.validate_data(
-                customer_data, require_contact=require_contact
-            )
-            self.payment_validator.validate(payment_data)
-        except ValueError as e:
+            request = Request(customer_data=customer_data, payment_data=payment_data)
+            self.validator.handle(request=request)
+        except Exception as e:
+            print(f"Fallo en las validaciones: {e}")
             raise e
 
         try:
@@ -110,8 +111,8 @@ class PaymentService(PaymentServiceProtocol):
             )
 
         try:
-            self.customer_validator.validate_data(customer_data)
-            self.payment_validator.validate(payment_data)
+            request = Request(customer_data=customer_data, payment_data=payment_data)
+            self.validator.handle(request=request)
         except ValueError as e:
             raise e
 

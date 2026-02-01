@@ -101,8 +101,7 @@ if __name__ == "__main__":
         .set_refund_processor()
         .set_logger()
         .set_listener()
-        .set_customer_validator()
-        .set_payment_validator()
+        .set_chain_of_validations()
         .build()
     )
 
@@ -134,8 +133,7 @@ if __name__ == "__main__":
         .set_refund_processor()
         .set_logger()
         .set_listener()
-        .set_customer_validator()
-        .set_payment_validator()
+        .set_chain_of_validations()
         .build()
     )
 
@@ -167,8 +165,7 @@ if __name__ == "__main__":
         .set_refund_processor()
         .set_logger()
         .set_listener()
-        .set_customer_validator()
-        .set_payment_validator()
+        .set_chain_of_validations()
         .build()
     )
 

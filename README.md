@@ -167,3 +167,11 @@ El patrón Observer define una dependencia uno a muchos entre objetos, de manera
 ✦ Definir una interfaz de Listener con un método de Notificación.
 ✦ Crear una clase Manager que gestione los listeners (suscripción, desuscripción, notificación).
 ✦ Agregar el Manager como atributo de la clase de alto nivel
+
+
+6. **Chain of Responsibility (behavioral)**
+El patrón Chain of Responsibility permite pasar una solicitud a lo largo de una cadena de manejadores hasta que uno de ellos la procese. Cada manejador decide si procesa la solicitud o la pasa al siguiente en la cadena.
+
+**Cómo aplicarlo:**
+✦ Definir una interfaz o clase abstracta para los manejadores con un método para procesar la solicitud y un atributo para el siguiente manejador.
+✦ Implementar clases concretas que extiendan la interfaz y manejen la solicitud o la pasen al siguiente.
